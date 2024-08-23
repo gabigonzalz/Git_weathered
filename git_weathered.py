@@ -2,6 +2,9 @@ import argparse  # Commands
 import pyfiglet  # Ascii titles
 from simple_chalk import chalk  # Colors
 import requests
+import datetime
+import json
+
 
 """
 This module provides functions to compile weather data from anywhere
@@ -40,13 +43,66 @@ WEATHER_ICONS = {
     "50n": "🌫",
 }
 
+LANGUAGE_CODES = """
+af Afrikaans
+al Albanian
+ar Arabic
+az Azerbaijani
+bg Bulgarian
+ca Catalan
+cz Czech
+da Danish
+de German
+el Greek
+en English
+eu Basque
+fa Persian (Farsi)
+fi Finnish
+fr French
+gl Galician
+he Hebrew
+hi Hindi
+hr Croatian
+hu Hungarian
+id Indonesian
+it Italian
+ja Japanese
+kr Korean
+la Latvian
+lt Lithuanian
+mk Macedonian
+no Norwegian
+nl Dutch
+pl Polish
+pt Portuguese
+pt_br Português Brasil
+ro Romanian
+ru Russian
+sv, se Swedish
+sk Slovak
+sl Slovenian
+sp, es Spanish
+sr Serbian
+th Thai
+tr Turkish
+ua, uk Ukrainian
+vi Vietnamese
+zh_cn Chinese Simplified
+zh_tw Chinese Traditional
+zu Zulu
+"""
+
+time_now = datetime.datetime.now()
+
 # Cnfigure the parser and its respective commands
 parser = argparse.ArgumentParser(description="Check the weather for a certain country/city")
-parser.add_argument("country", help="The country/city to ckeck the weather for")
+parser.add_argument("-c", "--country", default="Paraguay", help="The country/city to ckeck the weather for")
+parser.add_argument("-l", "--language", default="en", help=f"The language of the report. Languages: {LANGUAGE_CODES}")
+parser.add_argument("-e", "--export", help="filetype of the export")
 args = parser.parse_args()  # Stores the input argument
 
 # Construct the API URL with query parameters
-url = f"{BASE_URL}?q={args.country}&appid={API_KEY}&units=metric"
+url = f"{BASE_URL}?q={args.country}&appid={API_KEY}&units=metric&lang={args.language}"
 
 # Make API request and parse the response
 response = requests.get(url)
@@ -59,6 +115,10 @@ if response.status_code != 200:
 # Parsing the JSON response and extract the weather information
 data = response.json()
 
+if args.export == "txt" or args.export == "text":
+    export = open(f"{time_now}.txt", "a", encoding="utf-8")
+    export = 
+    
 # Get the info
 temperature = data["main"]["temp"]
 feels_like = data["main"]["feels_like"]
