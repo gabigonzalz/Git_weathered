@@ -171,4 +171,4 @@ if args.export == "csv":
     df.to_csv(f"{time_now}.csv", encoding='utf-8', index=False)
 
 # Print output
-print(chalk.blue(output))
+print(chalk.cyan(output))
