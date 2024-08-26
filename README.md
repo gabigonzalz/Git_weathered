@@ -37,45 +37,46 @@ This project is a Python-based command-line interface (CLI) application that pro
 
 1. **Basic Usage**:
    ```bash
-   python weather_cli.py -c "City, Country"
+   python weather_cli.py -c "City/Country"
    ```
    - Replace `"City, Country"` with the desired location.
 
 2. **Language Option**:
    ```bash
-   python weather_cli.py -c "City, Country" -l "en"
+   python weather_cli.py -c "City/Country" -l "en"
    ```
    - Replace `"en"` with the desired language code.
 
 3. **Export Options**:
    - To export the weather data in TXT format:
      ```bash
-     python weather_cli.py -c "City, Country" -e txt
+     python weather_cli.py -c "City/Country" -e txt
      ```
    - To export the weather data in JSON format:
      ```bash
-     python weather_cli.py -c "City, Country" -e json
+     python weather_cli.py -c "City/Country" -e json
      ```
    - To export the weather data in CSV format:
      ```bash
-     python weather_cli.py -c "City, Country" -e csv
+     python weather_cli.py -c "City/Country" -e csv
      ```
 
 ## Example
 
-To get the weather in New York, USA, in Spanish and export it as a JSON file:
+To get the weather in New York, in Spanish, and export it as a JSON file:
 
 ```bash
-python weather_cli.py -c "New York, USA" -l "es" -e json
+python weather_cli.py -c "New York" -l "es" -e json
 ```
 
 ## Error Handling
 
 - If the location is not found:
   ```plaintext
-  Error: Location 'City, Country' not found. Please check the spelling or try a different location.
+  Error: Location 'City/Country' not found. Please check the spelling or try a different location.
   ```
 - If the API request fails:
   ```plaintext
   Error: Unable to retrieve weather information. Error code: [HTTP Status Code]
   ```
+# Enjoy this little project <3
