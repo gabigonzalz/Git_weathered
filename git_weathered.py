@@ -1,21 +1,13 @@
+"""Module providing the current weather of any location and various export options"""
+
+import datetime  # Get datetime
+import json  # Handle json files
 import argparse  # Commands
-import json
+import requests  # Get http requests
+import pandas  # To export
 import pyfiglet  # Ascii titles
 from simple_chalk import chalk  # Colors
-import requests
-import datetime
-import pandas
-
-"""
-This module provides functions to compile weather data from anywhere
-in the form of a CLI program.
-"""
-
-# API key for OpenWeatherMap API
-API_KEY = "0ac74061ff0627cde608d666a3d35636"
-
-# Base URL for OpenWeatherMap API
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+import config
 
 # Map the icons to the weather codes
 WEATHER_ICONS = {
@@ -41,6 +33,7 @@ WEATHER_ICONS = {
     "50n": "🌫",
 }
 
+# Languages available
 LANGUAGE_CODES = """
 af Afrikaans
 al Albanian
@@ -90,39 +83,51 @@ zh_tw Chinese Traditional
 zu Zulu
 """
 
-time_now = datetime.datetime.now()
+time_now = datetime.datetime.now()  # Get the time now
 
-# Cnfigure the parser and its respective commands
-parser = argparse.ArgumentParser(description="Check the weather for a certain country/city")
-parser.add_argument("-c", "--country", default="Asuncion", help="The country/city to ckeck the weather for")
-parser.add_argument("-l", "--language", default="en", help=f"The language of the data. Languages: {LANGUAGE_CODES}")
-parser.add_argument("-e", "--export", help="filetype of the export")
+# Configure the parser and its respective commands
+parser = argparse.ArgumentParser(
+    description="Check the weather for a certain country/city and export the data"
+)
+parser.add_argument(
+    "-c",
+    "--country",
+    default="Asuncion",
+    help="The country/city to ckeck the weather for",
+)
+parser.add_argument(
+    "-l",
+    "--language",
+    default="en",
+    help=f"The language of the data. Languages: {LANGUAGE_CODES}",
+)
+parser.add_argument(
+    "-e",
+    "--export",
+    help="type of file of the export",
+)
 args = parser.parse_args()  # Stores the input argument
 
 # Construct the API URL with query parameters
-url = f"{BASE_URL}?q={args.country}&appid={API_KEY}&units=metric&lang={args.language}"
+url = f"{config.BASE_URL}?q={args.country}&appid={config.API_KEY}&units=metric&lang={args.language}"
 
-# Make API request and parse the response
+# Make API request and save the response
 response = requests.get(url)
 
+# In case of errors
 if response.status_code != 200:
-    print(chalk.red(f"""Error: Unable to retrieve weather information
-                    Error code: {response.status_code}"""))
+    print(
+        chalk.red(
+            f"""Error: Unable to retrieve weather information
+                    Error code: {response.status_code}"""
+        )
+    )
     exit()
 
 # Parsing the JSON response and extract the weather information
 data = response.json()
 
-# Get the info
-temperature = data["main"]["temp"]
-feels_like = data["main"]["feels_like"]
-description = data["weather"][0]["description"]
-icon = data["weather"][0]["icon"]
-city = data["name"]
-country = data["sys"]["country"]
-humidity = data["main"]["humidity"]
-wind_speed = data["wind"]["speed"]
-
+# Get the info from the response
 temperature = data["main"]["temp"]
 feels_like = data["main"]["feels_like"]
 description = data["weather"][0]["description"]
@@ -162,13 +167,13 @@ if args.export == "csv":
         "Feels Like (°C)": [feels_like],
         "Description": [description],
         "Humidity": [humidity],
-        "Wind Speed": [wind_speed]
+        "Wind Speed": [wind_speed],
     }
 
     df = pandas.DataFrame(weather_data)
 
     # Export the DataFrame to a CSV file
-    df.to_csv(f"{time_now}.csv", encoding='utf-8', index=False)
+    df.to_csv(f"{time_now}.csv", encoding="utf-8", index=False)
 
 # Print output
 print(chalk.cyan(output))
