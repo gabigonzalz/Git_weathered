@@ -7,81 +7,8 @@ import requests  # Get http requests
 import pandas  # To export
 import pyfiglet  # Ascii titles
 from simple_chalk import chalk  # Colors
-import config
-
-# Map the icons to the weather codes
-WEATHER_ICONS = {
-    # day icons
-    "01d": "☀️",
-    "02d": "⛅️",
-    "03d": "☁️",
-    "04d": "☁️",
-    "09d": "🌧",
-    "10d": "🌦",
-    "11d": "⛈️",
-    "13d": "❄️",
-    "50d": "🌫",
-    # night icons
-    "01n": "🌙",
-    "02n": "☁️",
-    "03n": "☁️",
-    "04n": "☁️",
-    "09n": "🌧",
-    "10n": "🌦",
-    "11n": "⛈️",
-    "13n": "❄️",
-    "50n": "🌫",
-}
-
-# Languages available
-LANGUAGE_CODES = """
-af Afrikaans
-al Albanian
-ar Arabic
-az Azerbaijani
-bg Bulgarian
-ca Catalan
-cz Czech
-da Danish
-de German
-el Greek
-en English
-eu Basque
-fa Persian (Farsi)
-fi Finnish
-fr French
-gl Galician
-he Hebrew
-hi Hindi
-hr Croatian
-hu Hungarian
-id Indonesian
-it Italian
-ja Japanese
-kr Korean
-la Latvian
-lt Lithuanian
-mk Macedonian
-no Norwegian
-nl Dutch
-pl Polish
-pt Portuguese
-pt_br Português Brasil
-ro Romanian
-ru Russian
-sv, se Swedish
-sk Slovak
-sl Slovenian
-sp, es Spanish
-sr Serbian
-th Thai
-tr Turkish
-ua, uk Ukrainian
-vi Vietnamese
-zh_cn Chinese Simplified
-zh_tw Chinese Traditional
-zu Zulu
-"""
+import config as conf
+import api_codes as ac
 
 time_now = datetime.datetime.now()  # Get the time now
 
@@ -99,7 +26,7 @@ parser.add_argument(
     "-l",
     "--language",
     default="en",
-    help=f"The language of the data. Languages: {LANGUAGE_CODES}",
+    help=f"The language of the data. Languages: {ac.LANGUAGE_CODES}",
 )
 parser.add_argument(
     "-e",
@@ -109,17 +36,23 @@ parser.add_argument(
 args = parser.parse_args()  # Stores the input argument
 
 # Construct the API URL with query parameters
-url = f"{config.BASE_URL}?q={args.country}&appid={config.API_KEY}&units=metric&lang={args.language}"
+url = f"{conf.BASE_URL}?q={args.country}&appid={conf.API_KEY}&units=metric&lang={args.language}"
 
 # Make API request and save the response
 response = requests.get(url)
 
 # In case of errors
-if response.status_code != 200:
+if response.status_code == 404:
     print(
         chalk.red(
-            f"""Error: Unable to retrieve weather information
-                    Error code: {response.status_code}"""
+            f"Error: Location '{args.country}' not found. Please check the spelling or try a different location."
+        )
+    )
+    exit()
+elif response.status_code != 200:
+    print(
+        chalk.red(
+            f"Error: Unable to retrieve weather information. Error code: {response.status_code}"
         )
     )
     exit()
@@ -138,7 +71,7 @@ humidity = data["main"]["humidity"]
 wind_speed = data["wind"]["speed"]
 
 # Construct the ouput to the CLI
-weather_icon = WEATHER_ICONS.get(icon, "")
+weather_icon = ac.WEATHER_ICONS.get(icon, "")
 output = f"{pyfiglet.figlet_format(city)}, {country}\n\n"
 output += "Current weather:  "
 output += f"{weather_icon} {description}\n\n"
